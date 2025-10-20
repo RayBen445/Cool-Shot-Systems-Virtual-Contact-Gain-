@@ -6,13 +6,19 @@ const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Check if running on Vercel (serverless environment)
+const IS_VERCEL = process.env.VERCEL === '1';
+
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
 
-// Check if running on Vercel (serverless environment)
-const IS_VERCEL = process.env.VERCEL === '1';
+// Serve static files from public directory
+// For Vercel, we need to adjust the path since the function is in /api
+const publicPath = IS_VERCEL 
+  ? path.join(__dirname, '..', 'public')
+  : path.join(__dirname, 'public');
+app.use(express.static(publicPath));
 
 // In-memory storage for Vercel (ephemeral)
 const memoryStorage = new Map();
@@ -286,7 +292,10 @@ app.get('/api/download', rateLimitMiddleware, (req, res) => {
 app.get('/session/:sessionId', rateLimitMiddleware, (req, res) => {
   // Note: sessionId validation happens client-side via API calls
   // This endpoint just serves the static HTML page
-  res.sendFile(path.join(__dirname, 'public', 'session.html'));
+  const sessionHtmlPath = IS_VERCEL
+    ? path.join(__dirname, '..', 'public', 'session.html')
+    : path.join(__dirname, 'public', 'session.html');
+  res.sendFile(sessionHtmlPath);
 });
 
 // Start server (only for local development, not on Vercel)
