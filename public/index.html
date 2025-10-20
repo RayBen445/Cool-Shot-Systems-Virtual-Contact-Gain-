@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cool Shot Systems - Virtual Contact Gain World</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Cool Shot Systems</h1>
+            <h2>Virtual Contact Gain World</h2>
+            <p class="tagline">Create your own contact collection session!</p>
+        </header>
+
+        <div class="session-creator">
+            <h3>Create a New Collection Session</h3>
+            <p>Start your own contact collection with a unique link to share with others.</p>
+            <form id="createSessionForm">
+                <div class="form-group">
+                    <label for="days">Collection Period (Days)</label>
+                    <input type="number" id="days" name="days" value="5" min="1" max="30" placeholder="Number of days">
+                </div>
+                <button type="submit" class="submit-btn">Create Session & Get Link</button>
+            </form>
+            <div id="sessionInfo" class="session-info" style="display: none;">
+                <h4>✅ Session Created!</h4>
+                <p>Share this link with others to collect contacts:</p>
+                <div class="share-link-container">
+                    <input type="text" id="shareLink" readonly class="share-link">
+                    <button id="copyLinkBtn" class="copy-btn">Copy Link</button>
+                </div>
+                <p class="info-text">Anyone with this link can submit their contact and download the collective VCF file.</p>
+            </div>
+        </div>
+
+        <div class="divider">
+            <span>OR</span>
+        </div>
+
+        <div class="default-session">
+            <h3>Join the Default Collection</h3>
+            <p>Submit your contact to the default collection session.</p>
+            <a href="/session/default" class="action-link">Go to Default Session →</a>
+        </div>
+
+        <footer>
+            <p>&copy; 2024 Cool Shot Systems - Virtual Contact Gain World</p>
+        </footer>
+    </div>
+
+    <script src="home.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "cool-shot-systems-virtual-contact-gain",
+  "version": "1.0.0",
+  "description": "Virtual Contact Gain World - Collective VCF file builder",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["vcf", "vcard", "contacts", "cool-shot-systems"],
+  "author": "Cool Shot Systems",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
