@@ -188,6 +188,118 @@ footer {
     color: #666;
 }
 
+/* New styles for homepage */
+.session-creator,
+.default-session {
+    padding: 40px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.session-info {
+    margin-top: 20px;
+    padding: 20px;
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 8px;
+}
+
+.session-info h4 {
+    color: #155724;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.share-link-container {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.share-link {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    font-size: 0.95em;
+    background: white;
+}
+
+.copy-btn {
+    padding: 12px 24px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.copy-btn:hover {
+    background: #5568d3;
+}
+
+.info-text {
+    color: #155724;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+.divider {
+    text-align: center;
+    padding: 30px 20px;
+    position: relative;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    right: 20px;
+    height: 1px;
+    background: #ddd;
+}
+
+.divider span {
+    background: white;
+    padding: 0 20px;
+    position: relative;
+    color: #999;
+    font-weight: bold;
+}
+
+.action-link {
+    display: inline-block;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.action-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.default-session {
+    text-align: center;
+    border-bottom: none;
+}
+
+.default-session p {
+    margin-bottom: 20px;
+}
+
+.back-home {
+    padding: 20px;
+    text-align: center;
+    border-top: 1px solid #eee;
+}
+
 @media (max-width: 600px) {
     header h1 {
         font-size: 2em;
@@ -204,5 +316,13 @@ footer {
 
     .time-value {
         font-size: 2em;
+    }
+
+    .share-link-container {
+        flex-direction: column;
+    }
+
+    .copy-btn {
+        width: 100%;
     }
 }

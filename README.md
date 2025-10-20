@@ -4,12 +4,15 @@ A web application for collecting contact information from multiple visitors into
 
 ## Features
 
+- 🔗 **Multi-Session Support**: Create unlimited collection sessions with unique shareable links
+- ⏱️ **Customizable Duration**: Set collection period from 1 to 30 days (default: 5 days)
 - 📝 **Simple Contact Form**: Visitors submit their Name, Phone, and optionally Email
-- ⏱️ **Countdown Timer**: Live countdown showing the collection period (default: 7 days)
-- 📊 **Real-time Stats**: Display of total contacts collected
+- ⏱️ **Countdown Timer**: Live countdown showing the collection period
+- 📊 **Real-time Stats**: Display of total contacts collected per session
 - 📥 **VCF Download**: Generate and download a single VCF file containing all contacts
 - 🏢 **Company Branding**: VCF file includes Cool Shot Systems branding
 - 💅 **Modern UI**: Beautiful gradient design with responsive layout
+- ☁️ **Vercel Ready**: Configured for easy deployment on Vercel
 
 ## Installation
 
@@ -36,38 +39,71 @@ http://localhost:3000
 
 ## Usage
 
+### Creating a New Session
+
+1. **Visit Homepage**: Go to the main page
+2. **Set Duration**: Choose collection period (1-30 days, default: 5)
+3. **Create Session**: Click "Create Session & Get Link"
+4. **Share Link**: Copy and share the unique session URL with participants
+
 ### For Visitors
 
-1. **Submit Your Contact**: Fill out the form with your Name and Phone (Email is optional)
-2. **Watch the Countdown**: See how much time remains in the collection period
-3. **Download VCF**: Once the collection period is active, click "Download VCF File" to get all contacts
+1. **Access Session**: Open the shared session link
+2. **View Countdown**: See time remaining in collection period
+3. **Submit Contact**: Fill out the form with Name and Phone (Email is optional)
+4. **Download VCF**: Click "Download VCF File" to get all contacts from this session
+
+### Session Management
+
+Each session is completely independent with its own:
+- Unique URL for sharing
+- Separate contact collection
+- Individual countdown timer
+- Dedicated VCF download
 
 ### For Administrators
 
 The application automatically:
-- Creates a `contacts.json` file to store submitted contacts
-- Sets a collection end date (7 days from server start by default)
+- Creates session data files in the `data/` directory
+- Sets collection end date based on specified days
 - Generates VCF files on-demand with Cool Shot Systems branding
 
 ## Configuration
 
-You can customize the collection end date by setting the `END_DATE` environment variable:
+The default collection period is **5 days**. You can customize this when creating a session through the web interface.
 
-```bash
-END_DATE="2025-12-31T23:59:59.999Z" npm start
-```
-
-You can also change the port:
+You can change the server port:
 
 ```bash
 PORT=8080 npm start
 ```
 
+## Deployment on Vercel
+
+This application is configured for deployment on Vercel:
+
+1. **Push to GitHub**: Ensure your code is in a GitHub repository
+2. **Import to Vercel**: 
+   - Go to [vercel.com](https://vercel.com)
+   - Click "Import Project"
+   - Select your GitHub repository
+3. **Deploy**: Vercel will automatically detect the configuration and deploy
+
+The `vercel.json` file is already configured for serverless deployment.
+
+**Note**: Session data in the `data/` directory will be stored in Vercel's serverless environment. For production use with persistent data, consider using a database service.
+
 ## API Endpoints
 
-- `GET /api/countdown` - Get countdown information and contact count
+- `POST /api/session/create` - Create a new collection session
+  - Body: `{ "days": 5 }` (optional, defaults to 5)
+  - Returns: `{ "sessionId", "endDate", "shareUrl" }`
+- `GET /api/session/:sessionId` - Get session information
+  - Returns: `{ "endDate", "contactCount", "createdAt" }`
+- `GET /api/countdown?sessionId=xxx` - Get countdown info (legacy, auto-creates default session)
 - `POST /api/submit` - Submit a new contact
-- `GET /api/download` - Download the VCF file
+  - Body: `{ "name", "phone", "email"?, "sessionId"? }`
+- `GET /api/download?sessionId=xxx` - Download the VCF file for a session
 
 ## VCF File Format
 
@@ -107,11 +143,15 @@ END:VCARD
 Cool-Shot-Systems-Virtual-Contact-Gain-/
 ├── server.js           # Express server and API endpoints
 ├── package.json        # Node.js dependencies
-├── contacts.json       # Contact data storage (auto-generated)
+├── vercel.json         # Vercel deployment configuration
+├── data/               # Session data storage (auto-generated)
+│   └── *.json         # Individual session files
 ├── public/
-│   ├── index.html     # Main HTML page
+│   ├── index.html     # Homepage - create sessions
+│   ├── session.html   # Session page - submit contacts
 │   ├── styles.css     # CSS styling
-│   └── script.js      # Client-side JavaScript
+│   ├── home.js        # Homepage JavaScript
+│   └── session.js     # Session page JavaScript
 └── README.md          # This file
 ```
 
