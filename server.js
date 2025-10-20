@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,30 +20,97 @@ if (!fs.existsSync(DATA_DIR)) {
 // Collection end date (5 days from now by default)
 const DEFAULT_DAYS = 5;
 
-// Helper function to generate session ID
+// Helper function to generate session ID using cryptographically secure random
 function generateSessionId() {
-  return Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+  return crypto.randomBytes(8).toString('hex');
+}
+
+// Helper function to validate and sanitize session ID
+// This prevents path injection attacks by only allowing safe characters
+function sanitizeSessionId(sessionId) {
+  // Only allow alphanumeric characters and 'default'
+  if (sessionId === 'default') {
+    return 'default';
+  }
+  // Validate format: only hex characters, 16 characters long
+  if (/^[a-f0-9]{16}$/.test(sessionId)) {
+    return sessionId;
+  }
+  return null;
 }
 
 // Helper function to get session file path
+// Protected against path injection by sanitizeSessionId
 function getSessionFile(sessionId) {
-  return path.join(DATA_DIR, `${sessionId}.json`);
+  const sanitized = sanitizeSessionId(sessionId);
+  if (!sanitized) {
+    return null;
+  }
+  // Safe to use sanitized value - only allows alphanumeric chars
+  return path.join(DATA_DIR, `${sanitized}.json`);
 }
 
 // Helper function to read session data
+// Protected against path injection by getSessionFile validation
 function readSession(sessionId) {
   const sessionFile = getSessionFile(sessionId);
-  if (!fs.existsSync(sessionFile)) {
+  if (!sessionFile || !fs.existsSync(sessionFile)) {
     return null;
   }
+  // sessionFile is guaranteed to be safe due to sanitization
   const data = fs.readFileSync(sessionFile, 'utf8');
   return JSON.parse(data);
 }
 
 // Helper function to write session data
+// Protected against path injection by getSessionFile validation
 function writeSession(sessionId, data) {
   const sessionFile = getSessionFile(sessionId);
+  if (!sessionFile) {
+    throw new Error('Invalid session ID');
+  }
+  // sessionFile is guaranteed to be safe due to sanitization
   fs.writeFileSync(sessionFile, JSON.stringify(data, null, 2));
+}
+
+// Simple in-memory rate limiting
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+const MAX_REQUESTS = 30; // 30 requests per minute per IP
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  const requestLog = rateLimitMap.get(ip) || [];
+  
+  // Filter out old requests outside the window
+  const recentRequests = requestLog.filter(time => now - time < RATE_LIMIT_WINDOW);
+  
+  if (recentRequests.length >= MAX_REQUESTS) {
+    return false;
+  }
+  
+  recentRequests.push(now);
+  rateLimitMap.set(ip, recentRequests);
+  
+  // Clean up old entries periodically
+  if (rateLimitMap.size > 1000) {
+    for (const [key, value] of rateLimitMap.entries()) {
+      if (value.length === 0 || now - value[value.length - 1] > RATE_LIMIT_WINDOW) {
+        rateLimitMap.delete(key);
+      }
+    }
+  }
+  
+  return true;
+}
+
+// Rate limiting middleware
+function rateLimitMiddleware(req, res, next) {
+  const ip = req.ip || req.connection.remoteAddress;
+  if (!checkRateLimit(ip)) {
+    return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+  }
+  next();
 }
 
 // Helper function to generate VCF content
@@ -75,7 +143,7 @@ function generateVCF(contacts) {
 // API Routes
 
 // Create a new session
-app.post('/api/session/create', (req, res) => {
+app.post('/api/session/create', rateLimitMiddleware, (req, res) => {
   const { days } = req.body;
   const sessionId = generateSessionId();
   const daysToAdd = days || DEFAULT_DAYS;
@@ -138,7 +206,7 @@ app.get('/api/countdown', (req, res) => {
 });
 
 // Submit contact
-app.post('/api/submit', (req, res) => {
+app.post('/api/submit', rateLimitMiddleware, (req, res) => {
   const { name, phone, email, sessionId } = req.body;
   
   // Validate required fields
@@ -176,7 +244,7 @@ app.post('/api/submit', (req, res) => {
 });
 
 // Download VCF file
-app.get('/api/download', (req, res) => {
+app.get('/api/download', rateLimitMiddleware, (req, res) => {
   const sessionId = req.query.sessionId || 'default';
   const data = readSession(sessionId);
   
@@ -195,7 +263,9 @@ app.get('/api/download', (req, res) => {
 });
 
 // Serve session-specific page
-app.get('/session/:sessionId', (req, res) => {
+app.get('/session/:sessionId', rateLimitMiddleware, (req, res) => {
+  // Note: sessionId validation happens client-side via API calls
+  // This endpoint just serves the static HTML page
   res.sendFile(path.join(__dirname, 'public', 'session.html'));
 });
 
