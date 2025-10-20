@@ -11,9 +11,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-// Data directory to store sessions
+// Check if running on Vercel (serverless environment)
+const IS_VERCEL = process.env.VERCEL === '1';
+
+// In-memory storage for Vercel (ephemeral)
+const memoryStorage = new Map();
+
+// Data directory to store sessions (only for non-Vercel environments)
 const DATA_DIR = path.join(__dirname, 'data');
-if (!fs.existsSync(DATA_DIR)) {
+if (!IS_VERCEL && !fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
@@ -53,6 +59,13 @@ function getSessionFile(sessionId) {
 // Helper function to read session data
 // Protected against path injection by getSessionFile validation
 function readSession(sessionId) {
+  // Use in-memory storage on Vercel
+  if (IS_VERCEL) {
+    const data = memoryStorage.get(sessionId);
+    return data || null;
+  }
+  
+  // Use file storage for local development
   const sessionFile = getSessionFile(sessionId);
   if (!sessionFile || !fs.existsSync(sessionFile)) {
     return null;
@@ -65,6 +78,13 @@ function readSession(sessionId) {
 // Helper function to write session data
 // Protected against path injection by getSessionFile validation
 function writeSession(sessionId, data) {
+  // Use in-memory storage on Vercel
+  if (IS_VERCEL) {
+    memoryStorage.set(sessionId, data);
+    return;
+  }
+  
+  // Use file storage for local development
   const sessionFile = getSessionFile(sessionId);
   if (!sessionFile) {
     throw new Error('Invalid session ID');
@@ -269,10 +289,12 @@ app.get('/session/:sessionId', rateLimitMiddleware, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'session.html'));
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Cool Shot Systems Virtual Contact Gain World running on port ${PORT}`);
-  console.log(`Default collection period: ${DEFAULT_DAYS} days`);
-});
+// Start server (only for local development, not on Vercel)
+if (!IS_VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Cool Shot Systems Virtual Contact Gain World running on port ${PORT}`);
+    console.log(`Default collection period: ${DEFAULT_DAYS} days`);
+  });
+}
 
 module.exports = app;

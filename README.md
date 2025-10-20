@@ -91,7 +91,19 @@ This application is configured for deployment on Vercel:
 
 The `vercel.json` file is already configured for serverless deployment.
 
-**Note**: Session data in the `data/` directory will be stored in Vercel's serverless environment. For production use with persistent data, consider using a database service.
+### ⚠️ Important: Data Persistence on Vercel
+
+**Current Setup**: Sessions use **in-memory storage** on Vercel, which means:
+- ❌ Data is **NOT persistent** across deployments
+- ❌ Sessions will be **lost** when serverless functions restart
+- ✅ Works perfectly for **demos and testing**
+
+**For Production**: See [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) for details on:
+- Adding a database (Vercel Postgres, MongoDB, etc.)
+- Alternative deployment platforms with persistent storage
+- Migration guide for production use
+
+**Local Development**: Uses file-based storage in `data/` directory (persistent).
 
 ## API Endpoints
 
