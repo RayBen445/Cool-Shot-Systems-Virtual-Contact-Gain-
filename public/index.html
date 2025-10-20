@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cool Shot Systems - Virtual Contact Gain World</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Cool Shot Systems</h1>
+            <h2>Virtual Contact Gain World</h2>
+            <p class="tagline">Join our collective contact collection!</p>
+        </header>
+
+        <div class="countdown-section">
+            <h3>Collection Period Countdown</h3>
+            <div id="countdown" class="countdown">
+                <div class="time-unit">
+                    <span id="days" class="time-value">0</span>
+                    <span class="time-label">Days</span>
+                </div>
+                <div class="time-unit">
+                    <span id="hours" class="time-value">0</span>
+                    <span class="time-label">Hours</span>
+                </div>
+                <div class="time-unit">
+                    <span id="minutes" class="time-value">0</span>
+                    <span class="time-label">Minutes</span>
+                </div>
+                <div class="time-unit">
+                    <span id="seconds" class="time-value">0</span>
+                    <span class="time-label">Seconds</span>
+                </div>
+            </div>
+            <p class="contact-count">Total Contacts Collected: <span id="contactCount">0</span></p>
+        </div>
+
+        <div class="form-section">
+            <h3>Submit Your Contact Information</h3>
+            <form id="contactForm">
+                <div class="form-group">
+                    <label for="name">Name *</label>
+                    <input type="text" id="name" name="name" required placeholder="Enter your name">
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone *</label>
+                    <input type="tel" id="phone" name="phone" required placeholder="Enter your phone number">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email (Optional)</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email">
+                </div>
+                <button type="submit" class="submit-btn">Submit Contact</button>
+            </form>
+            <div id="message" class="message"></div>
+        </div>
+
+        <div class="download-section">
+            <h3>Download Collective VCF</h3>
+            <p>Once the collection period ends, download all contacts in one VCF file!</p>
+            <button id="downloadBtn" class="download-btn">Download VCF File</button>
+            <p class="download-info">The VCF file includes Cool Shot Systems branding and all submitted contacts.</p>
+        </div>
+
+        <footer>
+            <p>&copy; 2024 Cool Shot Systems - Virtual Contact Gain World</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
