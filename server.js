@@ -14,11 +14,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from public directory
-// For Vercel, we need to adjust the path since the function is in /api
-const publicPath = IS_VERCEL 
-  ? path.join(__dirname, '..', 'public')
-  : path.join(__dirname, 'public');
-app.use(express.static(publicPath));
+// __dirname in server.js always refers to the project root where server.js is located
+app.use(express.static(path.join(__dirname, 'public')));
 
 // In-memory storage for Vercel (ephemeral)
 const memoryStorage = new Map();
@@ -292,10 +289,8 @@ app.get('/api/download', rateLimitMiddleware, (req, res) => {
 app.get('/session/:sessionId', rateLimitMiddleware, (req, res) => {
   // Note: sessionId validation happens client-side via API calls
   // This endpoint just serves the static HTML page
-  const sessionHtmlPath = IS_VERCEL
-    ? path.join(__dirname, '..', 'public', 'session.html')
-    : path.join(__dirname, 'public', 'session.html');
-  res.sendFile(sessionHtmlPath);
+  // __dirname in server.js always refers to where server.js is located (project root)
+  res.sendFile(path.join(__dirname, 'public', 'session.html'));
 });
 
 // Start server (only for local development, not on Vercel)
